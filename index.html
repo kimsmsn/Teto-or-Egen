@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>테토력 테스트</title>
+  <link href="https://cdn.jsdelivr.net/gh/naen-nae/fonts@purge-cache-for-subsets/build/css/Pretendard.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Pretendard', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+
+    /* ✅ 시작/결과 배경 */
+    body.start-bg {
+      background: url('너 테토냐 에겐이냐.jpg') no-repeat center center;
+      background-size: contain;
+      background-color: #fff;
+    }
+
+    /* ✅ 문제 화면 */
+    body.question-bg {
+      background: #fff;
+    }
+
+    /* 하트 */
+    .heart {
+      position: absolute;
+      font-size: 4rem;
+      animation: float 6s ease-in-out infinite;
+    }
+    .heart1 { top: 10%; left: 15%; }
+    .heart2 { top: 18%; left: 70%; }
+    .heart3 { top: 60%; left: 10%; }
+    .heart4 { top: 75%; left: 60%; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* ✅ 박스 크게 */
+    .container {
+      position: relative;
+      width: 95%;
+      max-width: 520px;
+      padding: 30px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.85);
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #FF1493;
+    }
+
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(90deg, #FF1F8D, #FF80CA);
+      color: #fff;
+    }
+
+    img.result-img {
+      width: 80%;
+      border-radius: 15px;
+      margin-top: 15px;
+    }
+
+    ul {
+      padding: 0;
+      list-style: none;
+    }
+
+    ul li {
+      margin: 5px 0;
+      font-size: 0.95rem;
+    }
+
+    button {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body class="start-bg">
+
+  <!-- 하트 -->
+  <div class="heart heart1">💪</div>
+  <div class="heart heart2">💪</div>
+  <div class="heart heart3">💪</div>
+  <div class="heart heart4">💪</div>
+
+  <div class="container">
+
+    <!-- 시작 -->
+    <div id="startScreen">
+      <h1>테토력 테스트💪</h1>
+      <button id="startBtn">시작하기</button>
+    </div>
+
+    <!-- 질문 -->
+    <div id="questionScreen" style="display:none;">
+      <div class="question" id="questionText"></div>
+      <div class="options">
+        <button id="optionA"></button>
+        <button id="optionB"></button>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div id="resultScreen" style="display:none;">
+      <h1 id="resultTitle"></h1>
+      <img id="resultImg" class="result-img"/>
+      <p id="resultDesc"></p>
+      <ul id="resultFeatures"></ul>
+      <p id="resultLine"></p>
+      <button id="retryBtn">다시하기</button>
+      <button id="shareBtn">링크 공유</button>
+    </div>
+
+  </div>
+
+  <script>
+    const questions=[
+      {q:"단톡에서 갑자기 조용해졌다", a:"내가 드립 던져서 살림", b:"그냥 상황 지켜봄"},
+      {q:"친구가 이상한 행동함", a:"같이 함", b:"속으로만 '왜저래…'"},
+      {q:"카톡 답장 스타일", a:"드립 섞어서 보냄", b:"최대한 무난하게 보냄"},
+      {q:"낯선 사람 많은 자리", a:"그냥 떠듦", b:"조용히 있음"},
+      {q:"생각나는 말 있음", a:"필터 없이 말함", b:"한 번 더 고민함"},
+      {q:"친구들이랑 있을 때", a:"내가 분위기 주도", b:"따라가는 편"},
+      {q:"갑자기 춤추자는 상황", a:"바로 참여", b:"절대 안함"},
+      {q:"실수했을 때", a:"그냥 웃고 넘김", b:"집 가서 계속 생각함"},
+      {q:"친구들이 보는 너", a:"웃긴 애", b:"착한 애"},
+      {q:"너의 본모습", a:"나 좀 이상함 인정", b:"나 그냥 평범함"}
+    ];
+
+    const results=[
+      {title:"🔥 핵테토", desc:"너는 그냥 인간이 아니라 콘텐츠다.", features:["분위기 장악","드립 중독","제어불가"], line:"👉 웃김", img:"핵테토.jpg"},
+      {title:"⚡ 은근테토", desc:"조용하다가 터짐", features:["타이밍 미침","한방 있음"], line:"👉 폭탄", img:"은근테토.jpg"},
+      {title:"🎭 상황형", desc:"상황 따라 변함", features:["적응력 좋음"], line:"👉 중간", img:"중간.jpg"},
+      {title:"🧊 숨은 에겐", desc:"속은 소심", features:["생각 많음"], line:"👉 내향", img:"약간에겐.jpg"},
+      {title:"🥺 에겐형", desc:"순한 인간", features:["거절 못함"], line:"👉 착함", img:"에겐.jpg"},
+      {title:"🫠 핵에겐", desc:"보호 필요", features:["의존형"], line:"👉 보호", img:"핵에겐.jpg"}
+    ];
+
+    let currentQuestion = 0;
+    let scoreA = 0;
+
+    const startBtn = document.getElementById('startBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const shareBtn = document.getElementById('shareBtn');
+
+    const startScreen = document.getElementById('startScreen');
+    const questionScreen = document.getElementById('questionScreen');
+    const resultScreen = document.getElementById('resultScreen');
+
+    const questionText = document.getElementById('questionText');
+    const optionA = document.getElementById('optionA');
+    const optionB = document.getElementById('optionB');
+
+    function showQuestion(){
+      questionText.innerText = questions[currentQuestion].q;
+      optionA.innerText = questions[currentQuestion].a;
+      optionB.innerText = questions[currentQuestion].b;
+    }
+
+    function showResult(){
+      let res;
+      if(scoreA >= 8) res = results[0];
+      else if(scoreA >=6) res = results[1];
+      else if(scoreA >=4) res = results[2];
+      else if(scoreA ==3) res = results[3];
+      else if(scoreA ==2) res = results[4];
+      else res = results[5];
+
+      document.getElementById('resultTitle').innerText = res.title;
+      document.getElementById('resultImg').src = res.img;
+      document.getElementById('resultDesc').innerText = res.desc;
+
+      const list = document.getElementById('resultFeatures');
+      list.innerHTML = '';
+      res.features.forEach(f => {
+        const li = document.createElement('li');
+        li.innerText = f;
+        list.appendChild(li);
+      });
+
+      document.getElementById('resultLine').innerText = res.line;
+
+      questionScreen.style.display = 'none';
+      resultScreen.style.display = 'block';
+
+      document.body.classList.remove('question-bg');
+      document.body.classList.add('start-bg');
+    }
+
+    function nextQ(){
+      currentQuestion++;
+      if(currentQuestion < questions.length){
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    startBtn.onclick = ()=>{
+      startScreen.style.display = 'none';
+      questionScreen.style.display = 'block';
+
+      document.body.classList.remove('start-bg');
+      document.body.classList.add('question-bg');
+
+      showQuestion();
+    }
+
+    optionA.onclick = ()=>{
+      scoreA++;
+      nextQ();
+    }
+
+    optionB.onclick = ()=>{
+      nextQ();
+    }
+
+    retryBtn.onclick = ()=>{
+      currentQuestion = 0;
+      scoreA = 0;
+
+      resultScreen.style.display = 'none';
+      startScreen.style.display = 'block';
+
+      document.body.classList.remove('question-bg');
+      document.body.classList.add('start-bg');
+    }
+
+    shareBtn.onclick = ()=>{
+      navigator.clipboard.writeText(window.location.href);
+      alert('링크 복사 완료!');
+    }
+  </script>
+
+</body>
+</html>
